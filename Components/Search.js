@@ -28,7 +28,6 @@ class Search extends React.Component {
         this.setState({
           films: []
         }, () => { // wait for the callback before load the movies
-            console.log("Page : " + this.page + " / TotalPages : " + this.totalPages + " / Nombre de films : " + this.state.films.length)
             this._loadFilms() 
         })
     }
@@ -55,6 +54,11 @@ class Search extends React.Component {
             )
         }
     }
+
+    _displayDetailForFilm = (idFilm) => {
+        console.log("Display film with id " + idFilm)
+        this.props.navigation.navigate("FilmDetail", { idFilm: idFilm }) // Change the view to Film detail
+    }
     
     render() {
         return (
@@ -76,6 +80,7 @@ class Search extends React.Component {
                             this._loadFilms()
                         }
                     }}
+                    renderItem={({item}) => <FilmItem film={item} displayDetailForFilm={this._displayDetailForFilm} />}
                 />
                 {this._displayLoading()}
             </View>
@@ -85,8 +90,7 @@ class Search extends React.Component {
 
 const styles = StyleSheet.create ({
     main_container: {
-        flex: 1,
-        marginTop: 20
+        flex: 1
     },
     textinput: {
         marginLeft: 5,
