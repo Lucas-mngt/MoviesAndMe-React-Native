@@ -3,7 +3,8 @@
 import React from 'react'
 import { StyleSheet, View, ActivityIndicator, TextInput, Button, FlatList } from 'react-native'
 import { getFilmsFromApiWithSearchedText } from '../API/TMDBApi'
-import FilmItem from './FilmItem'
+import { connect } from 'react-redux'
+import FilmList from './FilmList'
 
 class Search extends React.Component {
 
@@ -14,8 +15,11 @@ class Search extends React.Component {
         this.totalPages = 0
         this.state = { 
             films: [],
-            isLoading: false
+            isLoading: false,
+            count: 0
         }
+        this._loadFilms = this._loadFilms.bind(this) // We are going to use the function _loadFilms() in another component (FilmList) as a callback (the context will be on FilmList)
+                                                    //We need to keep the context (this) on Search, that's why we have to bind the function to keep the context on Search
     }
 
     _searchTextInputChanged(text) {
@@ -31,6 +35,7 @@ class Search extends React.Component {
             this._loadFilms() 
         })
     }
+    
     _loadFilms() {
         if (this.searchedText.length > 0) {
             this.setState({ isLoading: true })
@@ -54,11 +59,6 @@ class Search extends React.Component {
             )
         }
     }
-
-    _displayDetailForFilm = (idFilm) => {
-        console.log("Display film with id " + idFilm)
-        this.props.navigation.navigate("FilmDetail", { idFilm: idFilm }) // Change the view to Film detail
-    }
     
     render() {
         return (
@@ -70,17 +70,13 @@ class Search extends React.Component {
                     onSubmitEditing={() => this._searchFilms()}
                 />
                 <Button title='Rechercher' onPress={() => this._searchFilms()}/>
-                <FlatList
-                    data={this.state.films}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={({item}) => <FilmItem film={item}/>}
-                    onEndReachedThreshold={0.5}
-                    onEndReached={() => {
-                        if (this.page < this.totalPages) { //until pagination end
-                            this._loadFilms()
-                        }
-                    }}
-                    renderItem={({item}) => <FilmItem film={item} displayDetailForFilm={this._displayDetailForFilm} />}
+                <FilmList
+                    films={this.state.films}
+                    navigation={this.props.navigation}
+                    loadFilms={this._loadFilms} // binded function
+                    page={this.page}
+                    totalPages={this.totalPages}
+                    favoriteList={false} // not in the case of favoriteList display
                 />
                 {this._displayLoading()}
             </View>
@@ -111,4 +107,10 @@ const styles = StyleSheet.create ({
     }
 })
 
-export default Search
+const mapStateToProps = (state) => { // Map the favoriteFilm state to the component Search props
+    return {
+        favoritesFilm: state.favoritesFilm
+    }
+}
+
+export default connect(mapStateToProps)(Search)

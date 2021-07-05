@@ -8,7 +8,7 @@ import Store from './Store/configureStore'
 export default class App extends React.Component {
   render() {
     return (
-      <Provider store={Store}> {/* provide the store to all the app */}
+      <Provider store={Store}>
         <Navigation/>
       </Provider>
     )

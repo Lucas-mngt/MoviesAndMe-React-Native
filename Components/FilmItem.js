@@ -3,6 +3,19 @@ import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native'
 import { getImageFromApi } from '../API/TMDBApi'
 
 class FilmItem extends React.Component {
+
+    _displayFavoriteImage() {
+        if (this.props.isFilmFavorite) {
+          // if props isFilmFavorite is true, display the black heart
+          return (
+            <Image
+              style={styles.favorite_image}
+              source={require('../assets/ic_favorite.png')}
+            />
+          )
+        }
+    }
+
     render () {
         const { film, displayDetailForFilm } = this.props
         return (
@@ -16,6 +29,7 @@ class FilmItem extends React.Component {
                 </Image>
                 <View style={styles.content_container}>
                     <View style={styles.header_container}>
+                        {this._displayFavoriteImage()}
                         <Text style={styles.title_text}>{film.title}</Text>
                         <Text style={styles.vote_text}>{film.vote_average}</Text>
                     </View>
@@ -44,6 +58,12 @@ const styles = StyleSheet.create({
     content_container: {
         flex: 1,
         margin: 5
+    },
+    favorite_image: {
+        width: 25,
+        height: 25,
+        marginRight: 5,
+        marginTop: 15
     },
     header_container: {
         flex:3,

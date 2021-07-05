@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, View, Image, Text, ActivityIndicator, ScrollView } from 'react-native'
+import { StyleSheet, View, Image, Text, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native'
 import { getFilmDetailFromApi, getImageFromApi } from '../API/TMDBApi'
 import { connect } from 'react-redux'
 import moment from 'moment'
@@ -24,6 +24,11 @@ class FilmDetail extends React.Component {
       })
   }
 
+  componentDidUpdate() {
+    //console.log("ComponentDidUpdate :")
+    //console.log(this.props.favoritesFilm)
+  }
+
   _displayLoading() {
     if (this.state.isLoading) {
       // if isLoading is true, display the loader on screen
@@ -33,6 +38,23 @@ class FilmDetail extends React.Component {
         </View>
       )
     }
+  }
+
+  _toggleFavorite() {
+    const action = { type: "TOGGLE_FAVORITE", value: this.state.film}
+    this.props.dispatch(action) // connect() give us the opportunity to give action directly to the store like this
+  }
+
+  _displayFavoriteImage() {
+    var sourceImage = require('../assets/ic_favorite_border.png')
+    if (this.props.favoritesFilm.findIndex(item => item.id === this.state.film.id) !== -1) {
+      sourceImage = require('../assets/ic_favorite.png')
+    }
+    return (
+      <Image
+        style={styles.favorite_image}
+        source={sourceImage}></Image>
+    )
   }
 
   _displayFilm() {
@@ -45,6 +67,11 @@ class FilmDetail extends React.Component {
             source={{uri: getImageFromApi(film.poster_path)}}>
           </Image>
           <Text style={styles.title_text}>{film.title}</Text>
+          <TouchableOpacity
+            style={styles.favorite_container}
+            onPress={() => this._toggleFavorite()}>
+              {this._displayFavoriteImage()}
+          </TouchableOpacity>
           <Text style={styles.description_text}>{film.overview}</Text>
           <Text style={styles.default_text}>Sorti le {moment(new Date(film.release_date)).format('DD/MM/YYYY')}</Text>
           <Text style={styles.default_text}>Note : {film.vote_average}</Text>
@@ -108,6 +135,9 @@ const styles = StyleSheet.create({
     color: '#000000',
     textAlign: 'center'
   },
+  favorite_container: {
+    alignItems: 'center'
+  },
   description_text: {
     fontStyle: 'italic',
     color: '#777777',
@@ -122,7 +152,7 @@ const styles = StyleSheet.create({
 
 })
 
-const mapStateToProps = (state) => { // Map the favorite films to the component FilmDetail props
+const mapStateToProps = (state) => { // Map the favorite films state to the component FilmDetail props
     return {
         favoritesFilm: state.favoritesFilm
     }
