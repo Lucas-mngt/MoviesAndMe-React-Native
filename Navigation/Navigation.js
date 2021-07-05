@@ -6,6 +6,7 @@ import {createBottomTabNavigator} from 'react-navigation-tabs'
 import Search from '../Components/Search'
 import FilmDetail from '../Components/FilmDetail'
 import Favorites from '../Components/Favorites'
+import TestSpec from '../Components/TestSpec'
 
 const SearchStackNavigator = createStackNavigator({
     Search: { // Name it as you want
@@ -33,6 +34,9 @@ const FavoritesStackNavigator = createStackNavigator({
 
 const MoviesTabNavigator = createBottomTabNavigator(
     {
+        // Test: {
+        //     screen: TestSpec
+        // },
         Search: {
             screen: SearchStackNavigator,
             navigationOptions: {

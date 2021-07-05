@@ -1,26 +1,61 @@
 import React from 'react'
-import { StyleSheet, View, Image, Text, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native'
+import { StyleSheet, View, Image, Text, ActivityIndicator, ScrollView, TouchableOpacity, Share, Platform } from 'react-native'
 import { getFilmDetailFromApi, getImageFromApi } from '../API/TMDBApi'
 import { connect } from 'react-redux'
 import moment from 'moment'
 import numeral from 'numeral'
 
 class FilmDetail extends React.Component {
+  static navigationOptions = ({ navigation }) => {
+    const { params } = navigation.state
+    // We access the function shareFilm and the film through the parans added to the navigation
+    if (params.film != undefined && Platform.OS === 'ios') {
+      return {
+        headerRight: // We need to display an image so we need to go through a TouchableOpacity
+          <TouchableOpacity
+            style={styles.share_touchable_headerrightbutton}
+            onPress={() => params.shareFilm()}>
+            <Image
+              style={styles.share_image}
+              source={require('../assets/ic_share.ios.png')} />
+          </TouchableOpacity>
+      }
+    }
+  }
+  
   constructor(props) {
     super(props)
     this.state = {
       film: undefined,
       isLoading: true
     }
+    this._shareFilm = this._shareFilm.bind(this) // bind the function because we are going to use it in the headerRight of the navigation (we need to be in the FilmDetail context)
+  }
+
+  _updateNavigationParams() { // this function is made to give the function _shareFilm and the object film as params of the navigation (to use it in headerRight)
+    this.props.navigation.setParams({
+      shareFilm: this._shareFilm,
+      film: this.state.film
+    })
   }
 
   componentDidMount() {
     console.log("Component FilmDetail mount")
+    console.log(this.props.favoritesFilm)
+    const favoriteFilmIndex = this.props.favoritesFilm.findIndex(item => item.id === this.props.navigation.state.params.idFilm) 
+    console.log(favoriteFilmIndex)
+    if (favoriteFilmIndex !== -1) {
+      this.setState({
+        film: this.props.favoritesFilm[favoriteFilmIndex]
+      }, () => { this._updateNavigationParams() })
+      return
+    }
+    this.setState({ isLoading: true })
     getFilmDetailFromApi(this.props.navigation.state.params.idFilm).then(data => {
         this.setState({
           film: data,
           isLoading: false
-        })
+        }, () => { this._updateNavigationParams() })
       })
   }
 
@@ -43,6 +78,26 @@ class FilmDetail extends React.Component {
   _toggleFavorite() {
     const action = { type: "TOGGLE_FAVORITE", value: this.state.film}
     this.props.dispatch(action) // connect() give us the opportunity to give action directly to the store like this
+  }
+
+  _shareFilm() {
+    const { film } = this.state
+    Share.share({ title: film.title, message: film.overview})
+  }
+
+  _displayFloatingActionButton() {
+    const { film } = this.state
+    if (film != undefined && Platform.OS === 'android') { // Only on Android and when the movie is display
+      return (
+        <TouchableOpacity
+          style={styles.share_touchable_floatingactionbutton}
+          onPress={() => this._shareFilm()}>
+          <Image
+            style={styles.share_image}
+            source={require('../assets/ic_share.android.png')} />
+        </TouchableOpacity>
+      )
+    }
   }
 
   _displayFavoriteImage() {
@@ -98,6 +153,7 @@ class FilmDetail extends React.Component {
       <View style={styles.main_container}>
         {this._displayLoading()}
         {this._displayFilm()}
+        {this._displayFloatingActionButton()}
       </View>
     )
   }
@@ -148,8 +204,25 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     marginRight: 5,
     marginTop: 5,
+  },
+  share_touchable_floatingactionbutton: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    right: 30,
+    bottom: 30,
+    borderRadius: 30,
+    backgroundColor: '#e91e63',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  share_image: {
+    width: 30,
+    height: 30
+  },
+  share_touchable_headerrightbutton: {
+    marginRight: 8
   }
-
 })
 
 const mapStateToProps = (state) => { // Map the favorite films state to the component FilmDetail props
