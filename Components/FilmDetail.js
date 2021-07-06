@@ -4,6 +4,7 @@ import { getFilmDetailFromApi, getImageFromApi } from '../API/TMDBApi'
 import { connect } from 'react-redux'
 import moment from 'moment'
 import numeral from 'numeral'
+import EnLargeShrink from '../Animations/EnLargeShrink'
 
 class FilmDetail extends React.Component {
   static navigationOptions = ({ navigation }) => {
@@ -41,9 +42,9 @@ class FilmDetail extends React.Component {
 
   componentDidMount() {
     console.log("Component FilmDetail mount")
-    console.log(this.props.favoritesFilm)
+    // console.log(this.props.favoritesFilm)
     const favoriteFilmIndex = this.props.favoritesFilm.findIndex(item => item.id === this.props.navigation.state.params.idFilm) 
-    console.log(favoriteFilmIndex)
+    // console.log(favoriteFilmIndex)
     if (favoriteFilmIndex !== -1) {
       this.setState({
         film: this.props.favoritesFilm[favoriteFilmIndex]
@@ -102,13 +103,20 @@ class FilmDetail extends React.Component {
 
   _displayFavoriteImage() {
     var sourceImage = require('../assets/ic_favorite_border.png')
+    var shouldEnlarge = false
     if (this.props.favoritesFilm.findIndex(item => item.id === this.state.film.id) !== -1) {
       sourceImage = require('../assets/ic_favorite.png')
+      shouldEnlarge = true
     }
     return (
-      <Image
-        style={styles.favorite_image}
-        source={sourceImage}></Image>
+      <EnLargeShrink
+        shouldEnlarge={shouldEnlarge}>
+          <Image
+            style={styles.favorite_image}
+            source={sourceImage}>
+          </Image>
+      </EnLargeShrink>
+      
     )
   }
 
@@ -140,7 +148,7 @@ class FilmDetail extends React.Component {
   }
 
   _stringifyTab(tab) { // Used for genres and companies names
-    console.log(tab)
+    // console.log(tab)
     const result = tab.map(function(element){
         return element.name;
       }).join(" / ")
@@ -216,9 +224,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
-  share_image: {
-    width: 30,
-    height: 30
+  favorite_image:{
+    flex: 1,
+    width: null,
+    height: null
   },
   share_touchable_headerrightbutton: {
     marginRight: 8
