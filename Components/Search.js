@@ -109,7 +109,7 @@ const styles = StyleSheet.create ({
 
 const mapStateToProps = (state) => { // Map the favoriteFilm state to the component Search props
     return {
-        favoritesFilm: state.favoritesFilm
+        favoritesFilm: state.toggleFavorite.favoritesFilm
     }
 }
 

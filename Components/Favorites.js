@@ -1,28 +1,41 @@
 // Components/Favorites.js
 
 import React from 'react'
-import { StyleSheet, Text } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import FilmList from './FilmList'
 import { connect } from 'react-redux'
+import Avatar from './Avatar'
 
 class Favorites extends React.Component {
 
   render() {
     return (
-      <FilmList
-        films={this.props.favoritesFilm}
-        navigation={this.props.navigation}
-        favoriteList={true} // Here in the case of favoriteList display
-      />
+      <View style={styles.main_container}>
+        <View style={styles.avatar_container}>
+          <Avatar/>
+        </View>
+        <FilmList
+          films={this.props.favoritesFilm}
+          navigation={this.props.navigation}
+          favoriteList={true} // Here in the case of favoriteList display
+        />
+      </View>
     )
   }
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  main_container: {
+    flex: 1
+  },
+  avatar_container: {
+    alignItems: 'center'
+  }
+})
 
 const mapStateToProps = (state) => { // Map the favoriteFilm state to the component Favorites props
     return {
-        favoritesFilm: state.favoritesFilm
+        favoritesFilm: state.toggleFavorite.favoritesFilm
     }
 }
 

@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { StyleSheet, View, Platform, Animated, Easing } from 'react-native'
-import HelloWorld from './HelloWorld_IOS_Android/HelloWorld' // it will import the correct file depend of you Platform (ios or android)
 
 class TestSpec extends React.Component {
 
